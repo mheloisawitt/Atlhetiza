@@ -1,4 +1,3 @@
-/*!40101 SET NAMES utf8mb4 */;
 
 USE athletiza;
 
@@ -24,40 +23,62 @@ INSERT INTO cargo (nome, ordem, setor, cargo_superior_id)
 INSERT INTO cargo (nome, ordem, setor, cargo_superior_id)
     SELECT c.nome, 3, c.setor, p.id
     FROM (SELECT 'Diretor de Esportes' AS nome, 'ESPORTES' AS setor
+             UNION ALL SELECT 'Diretor de Marketing', NULL
+             UNION ALL SELECT 'Diretor de Produtos', NULL
              UNION ALL SELECT 'Diretor de Eventos', 'EVENTOS'
-             UNION ALL SELECT 'Tesoureiro', 'FINANCEIRO'
-             UNION ALL SELECT 'Secretário', 'SECRETARIA') AS c,
+             UNION ALL SELECT 'Diretor de Ações Sociais', 'SOCIAL'
+             UNION ALL SELECT 'Diretor de Comunicação', NULL) AS c,
          cargo p
     WHERE p.nome = 'Vice-presidente';
 
 INSERT INTO cargo (nome, ordem, setor, cargo_superior_id)
-    SELECT 'Coordenador de Modalidade', 4, 'ESPORTES', id FROM cargo WHERE nome = 'Diretor de Esportes';
+    SELECT c.nome, 4, c.setor, d.id
+    FROM (SELECT 'Assessor de Esportes' AS nome, 'ESPORTES' AS setor, 'Diretor de Esportes' AS diretor
+             UNION ALL SELECT 'Assessor de Eventos', 'EVENTOS', 'Diretor de Eventos'
+             UNION ALL SELECT 'Assessor de Comunicação', NULL, 'Diretor de Comunicação') AS c,
+         cargo d
+    WHERE d.nome = c.diretor;
 
-INSERT INTO membro (nome, matricula, contato) VALUES
-    ('Mariana Rocha', '201801', 'mariana.rocha@email.com'),
-    ('Lucas Pereira', '201845', '(47) 99999-1001'),
-    ('Juliana Martins', '201902', 'juliana.martins@email.com'),
-    ('Rafael Teixeira', '201933', '(47) 99999-1002'),
-    ('Paula Ribeiro', '202010', 'paula.ribeiro@email.com'),
-    ('Bruno Costa', '202105', '(47) 99999-1003');
+INSERT INTO membro (nome, matricula) VALUES
+    ('Laiza Maria Lemos', '202301'),
+    ('Rayssa Pittaluga', '202302'),
+    ('Manuela Cordova Westphal', '202303'),
+    ('Fernando Damazio', '202304'),
+    ('Lucas Prim', '202305'),
+    ('Juliana Lazaris', '202306'),
+    ('Davi Menezes', '202307'),
+    ('João Vitor Braz', '202308'),
+    ('Leticia Santos Pontes', '202309'),
+    ('Ricardo da Silva', '202310'),
+    ('Maria Heloisa Witt', '202311'),
+    ('Guilherme Grohes', '202312'),
+    ('Giulia Tanquela', '202313');
 
 INSERT INTO gestao_membro_cargo (gestao_id, membro_id, cargo_id)
     SELECT g.id, m.id, c.id
-    FROM (SELECT '201801' AS matricula, 'Presidente' AS cargo
-             UNION ALL SELECT '201845', 'Vice-presidente'
-             UNION ALL SELECT '201902', 'Diretor de Esportes'
-             UNION ALL SELECT '201933', 'Diretor de Eventos'
-             UNION ALL SELECT '202010', 'Tesoureiro'
-             UNION ALL SELECT '202105', 'Coordenador de Modalidade') AS v,
+    FROM (SELECT '202301' AS matricula, 'Presidente' AS cargo
+             UNION ALL SELECT '202302', 'Vice-presidente'
+             UNION ALL SELECT '202303', 'Diretor de Esportes'
+             UNION ALL SELECT '202304', 'Assessor de Esportes'
+             UNION ALL SELECT '202305', 'Assessor de Esportes'
+             UNION ALL SELECT '202306', 'Diretor de Marketing'
+             UNION ALL SELECT '202307', 'Diretor de Produtos'
+             UNION ALL SELECT '202308', 'Diretor de Eventos'
+             UNION ALL SELECT '202309', 'Assessor de Eventos'
+             UNION ALL SELECT '202310', 'Assessor de Eventos'
+             UNION ALL SELECT '202311', 'Diretor de Ações Sociais'
+             UNION ALL SELECT '202312', 'Diretor de Comunicação'
+             UNION ALL SELECT '202313', 'Assessor de Comunicação') AS v,
          gestao g, membro m, cargo c
     WHERE g.nome = 'Gestão 2025-2026' AND m.matricula = v.matricula AND c.nome = v.cargo;
 
 INSERT INTO usuario (nome, matricula, login, senha_hash, membro_id)
     SELECT m.nome, m.matricula, v.login, 'pbkdf2$120000$BU/kNNz8vIHtNWaxrAtuRQ==$KaIvcqN1E4L+se+OTjQ4JCSgnVAAJEBKC2tfNXvLL5U=', m.id
-    FROM (SELECT '201801' AS matricula, 'mariana' AS login
-             UNION ALL SELECT '201902', 'juliana'
-             UNION ALL SELECT '201933', 'rafael'
-             UNION ALL SELECT '202105', 'bruno') AS v,
+    FROM (SELECT '202301' AS matricula, 'laiza' AS login
+             UNION ALL SELECT '202303', 'manuela'
+             UNION ALL SELECT '202308', 'joao'
+             UNION ALL SELECT '202304', 'fernando'
+             UNION ALL SELECT '202311', 'heloisa') AS v,
          membro m
     WHERE m.matricula = v.matricula;
 
@@ -91,7 +112,7 @@ INSERT INTO treino (tipo, titulo, data, horario, local, modalidade_id, responsav
              UNION ALL SELECT 'AMISTOSO', 'Amistoso Futsal (F) x Atlética Furiosa', '2026-10-08', '20:00', 'Quadra 1', 'Atlética Furiosa'
              UNION ALL SELECT 'TREINO', 'Treino Futsal (F)', '2026-10-10', '19:00', 'Quadra 1', NULL) AS v,
          modalidade m, membro r
-    WHERE m.nome = 'Futsal' AND m.genero = 'FEMININO' AND r.matricula = '201902';
+    WHERE m.nome = 'Futsal' AND m.genero = 'FEMININO' AND r.matricula = '202303';
 
 INSERT INTO presenca_treino (treino_id, atleta_id, presente)
     SELECT t.id, a.id, a.matricula <> '202190'
@@ -123,13 +144,13 @@ INSERT INTO evento (titulo, tipo_evento, data, horario, local, situacao) VALUES
 
 INSERT INTO evento_responsavel (evento_id, membro_id)
     SELECT e.id, m.id FROM evento e, membro m
-    WHERE e.titulo = 'Festa Atlética' AND m.matricula IN ('201933', '202010');
+    WHERE e.titulo = 'Festa Atlética' AND m.matricula IN ('202308', '202309');
 
 INSERT INTO tarefa (evento_id, descricao, responsavel_id, prazo, situacao)
     SELECT e.id, v.descricao, m.id, CAST(v.prazo AS DATE), v.situacao
-    FROM (SELECT 'Reservar o espaço' AS descricao, '201933' AS matricula, '2026-09-30' AS prazo, 'CONCLUIDA' AS situacao
-             UNION ALL SELECT 'Contratar DJ', '201933', '2026-10-05', 'EM_ANDAMENTO'
-             UNION ALL SELECT 'Vender ingressos', '202010', '2026-10-11', 'PENDENTE') AS v,
+    FROM (SELECT 'Reservar o espaço' AS descricao, '202308' AS matricula, '2026-09-30' AS prazo, 'CONCLUIDA' AS situacao
+             UNION ALL SELECT 'Contratar DJ', '202310', '2026-10-05', 'EM_ANDAMENTO'
+             UNION ALL SELECT 'Vender ingressos', '202309', '2026-10-11', 'PENDENTE') AS v,
          evento e, membro m
     WHERE e.titulo = 'Festa Atlética' AND m.matricula = v.matricula;
 
@@ -142,14 +163,14 @@ INSERT INTO demanda (titulo, prioridade, situacao, prazo, evento_id)
 INSERT INTO demanda (titulo, prioridade, situacao, prazo, competicao_id)
     SELECT 'Reservar ônibus para os atletas', 'ALTA', 'ABERTA', '2026-10-25', id FROM competicao WHERE titulo = 'JIUDESC 2026';
 
-UPDATE demanda SET solicitante_id = (SELECT id FROM usuario WHERE login = 'mariana');
+UPDATE demanda SET solicitante_id = (SELECT id FROM usuario WHERE login = 'laiza');
 
 INSERT INTO demanda_responsavel (demanda_id, membro_id)
     SELECT d.id, m.id
-    FROM (SELECT 'Renovar o estoque de camisetas' AS titulo, '202010' AS matricula
-             UNION ALL SELECT 'Arrecadar alimentos', '201933'
-             UNION ALL SELECT 'Arrecadar alimentos', '201801'
-             UNION ALL SELECT 'Reservar ônibus para os atletas', '201902') AS v,
+    FROM (SELECT 'Renovar o estoque de camisetas' AS titulo, '202307' AS matricula
+             UNION ALL SELECT 'Arrecadar alimentos', '202311'
+             UNION ALL SELECT 'Arrecadar alimentos', '202301'
+             UNION ALL SELECT 'Reservar ônibus para os atletas', '202303') AS v,
          demanda d, membro m
     WHERE d.titulo = v.titulo AND m.matricula = v.matricula
       AND EXISTS (SELECT 1 FROM gestao_membro_cargo gmc JOIN gestao g ON g.id = gmc.gestao_id
